@@ -12,19 +12,19 @@ class ImageParser : SequentialParser {
     override fun parse(tokens: TokensCache, rangesToGlue: List<IntRange>): SequentialParser.ParsingResult {
         var result = SequentialParser.ParsingResultBuilder()
         val delegateIndices = RangesListBuilder()
-        var iterator: TokensCache.Iterator = tokens.RangesListIterator(rangesToGlue)
+        var iterator: TokensCache.MutableIterator = tokens.MutableRangeListIterator(rangesToGlue)
 
         while (iterator.type != null) {
             if (iterator.type == MarkdownTokenTypes.EXCLAMATION_MARK
                     && iterator.rawLookup(1) == MarkdownTokenTypes.LBRACKET) {
-                val link = InlineLinkParser.parseInlineLink(iterator.advance())
-                        ?: ReferenceLinkParser.parseReferenceLink(iterator.advance())
+                val link = InlineLinkParser.parseInlineLink(iterator.mutableCopy().advance())
+                        ?: ReferenceLinkParser.parseReferenceLink(iterator.mutableCopy().advance())
 
                 if (link != null) {
                     result = result
                             .withNode(SequentialParser.Node(iterator.index..link.iteratorPosition.index + 1, MarkdownElementTypes.IMAGE))
                             .withOtherParsingResult(link)
-                    iterator = link.iteratorPosition.advance()
+                    iterator = link.iteratorPosition.mutableCopy().advance()
                     continue
                 }
             }

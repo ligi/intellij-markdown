@@ -11,7 +11,7 @@ class EmphStrongParser : SequentialParser {
 
     override fun parse(tokens: TokensCache, rangesToGlue: List<IntRange>): SequentialParser.ParsingResult {
         val result = SequentialParser.ParsingResultBuilder()
-        var iterator = tokens.RangesListIterator(rangesToGlue)
+        var iterator: TokensCache.MutableIterator = tokens.MutableRangeListIterator(rangesToGlue)
 
         val openingOnes = ArrayList<OpeningEmphInfo>()
 
@@ -65,14 +65,14 @@ class EmphStrongParser : SequentialParser {
     }
 
     private fun canStartNumber(iterator: TokensCache.Iterator): Int {
-        var leftIt = iterator
+        var leftIt = iterator.mutableCopy()
         while (leftIt.rawLookup(-1) == MarkdownTokenTypes.EMPH && getType(leftIt) == leftIt.charLookup(-1)) {
             leftIt = leftIt.rollback()
         }
 
-        var it = iterator
+        var it = iterator.mutableCopy()
         for (i in 0..50 - 1) {
-            if (it.rawLookup(1) != MarkdownTokenTypes.EMPH || getType(it) != getType(it.advance())) {
+            if (it.rawLookup(1) != MarkdownTokenTypes.EMPH || getType(it) != getType(it.mutableCopy().advance())) {
                 if (!isLeftFlankingRun(leftIt, it)) {
                     return 0
                 }
@@ -90,13 +90,13 @@ class EmphStrongParser : SequentialParser {
     }
 
     private fun canEndNumber(iterator: TokensCache.Iterator): Int {
-        var it = iterator
+        var it = iterator.mutableCopy()
         if (SequentialParserUtil.isWhitespace(it, -1)) {
             return 0
         }
 
         for (i in 0..50 - 1) {
-            if (it.rawLookup(1) != MarkdownTokenTypes.EMPH || getType(it) != getType(it.advance())) {
+            if (it.rawLookup(1) != MarkdownTokenTypes.EMPH || getType(it) != getType(it.mutableCopy().advance())) {
                 if (!isRightFlankingRun(iterator, it)) {
                     return 0
                 }

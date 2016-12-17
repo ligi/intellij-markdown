@@ -24,13 +24,15 @@ class SequentialParserUtil {
             return (PUNCTUATION_MASK shr Character.getType(char)) and 1 != 0
         }
 
-       fun filterBlockquotes(tokensCache: TokensCache, textRange: IntRange): List<IntRange> {
+        fun filterBlockquotes(tokensCache: TokensCache, textRange: IntRange): List<IntRange> {
             val result = ArrayList<IntRange>()
             var lastStart = textRange.start
 
             val R = textRange.endInclusive
+            var it = tokensCache.MutableIterator(lastStart - 1)
             for (i in lastStart..R - 1) {
-                if (tokensCache.Iterator(i).type == MarkdownTokenTypes.BLOCK_QUOTE) {
+                it = it.advance()
+                if (it.type == MarkdownTokenTypes.BLOCK_QUOTE) {
                     if (lastStart < i) {
                         result.add(lastStart..i - 1)
                     }

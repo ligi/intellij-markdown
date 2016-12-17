@@ -11,13 +11,13 @@ class InlineLinkParser : SequentialParser {
     override fun parse(tokens: TokensCache, rangesToGlue: List<IntRange>): SequentialParser.ParsingResult {
         var result = SequentialParser.ParsingResultBuilder()
         val delegateIndices = RangesListBuilder()
-        var iterator: TokensCache.Iterator = tokens.RangesListIterator(rangesToGlue)
+        var iterator: TokensCache.MutableIterator = tokens.MutableRangeListIterator(rangesToGlue)
 
         while (iterator.type != null) {
             if (iterator.type == MarkdownTokenTypes.LBRACKET) {
                 val inlineLink = parseInlineLink(iterator)
                 if (inlineLink != null) {
-                    iterator = inlineLink.iteratorPosition.advance()
+                    iterator = inlineLink.iteratorPosition.mutableCopy().advance()
                     result = result.withOtherParsingResult(inlineLink)
                     continue
                 }
@@ -33,11 +33,11 @@ class InlineLinkParser : SequentialParser {
     companion object {
         fun parseInlineLink(iterator: TokensCache.Iterator): LocalParsingResult? {
             val startIndex = iterator.index
-            var it = iterator
+            var it: TokensCache.MutableIterator
 
-            val linkText = LinkParserUtil.parseLinkText(it)
+            val linkText = LinkParserUtil.parseLinkText(iterator)
                     ?: return null
-            it = linkText.iteratorPosition
+            it = linkText.iteratorPosition.mutableCopy()
             if (it.rawLookup(1) != MarkdownTokenTypes.LPAREN) {
                 return null
             }
@@ -48,14 +48,14 @@ class InlineLinkParser : SequentialParser {
             }
             val linkDestination = LinkParserUtil.parseLinkDestination(it)
             if (linkDestination != null) {
-                it = linkDestination.iteratorPosition.advance()
+                it = linkDestination.iteratorPosition.mutableCopy().advance()
                 if (it.type == MarkdownTokenTypes.EOL) {
                     it = it.advance()
                 }
             }
             val linkTitle = LinkParserUtil.parseLinkTitle(it)
             if (linkTitle != null) {
-                it = linkTitle.iteratorPosition.advance()
+                it = linkTitle.iteratorPosition.mutableCopy().advance()
                 if (it.type == MarkdownTokenTypes.EOL) {
                     it = it.advance()
                 }

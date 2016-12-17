@@ -8,7 +8,7 @@ import org.intellij.markdown.parser.sequentialparsers.*
 class LinkParserUtil {
     companion object {
         fun parseLinkDestination(iterator: TokensCache.Iterator): LocalParsingResult? {
-            var it = iterator
+            var it = iterator.mutableCopy()
             if (it.type == MarkdownTokenTypes.EOL || it.type == MarkdownTokenTypes.RPAREN) {
                 return null
             }
@@ -53,12 +53,12 @@ class LinkParserUtil {
         }
 
         fun parseLinkLabel(iterator: TokensCache.Iterator): LocalParsingResult? {
-            var it = iterator
 
-            if (it.type != MarkdownTokenTypes.LBRACKET) {
+            if (iterator.type != MarkdownTokenTypes.LBRACKET) {
                 return null
             }
 
+            var it = iterator.mutableCopy()
             val startIndex = it.index
 
             val delegate = RangesListBuilder()
@@ -86,12 +86,11 @@ class LinkParserUtil {
         }
 
         fun parseLinkText(iterator: TokensCache.Iterator): LocalParsingResult? {
-            var it = iterator
-
-            if (it.type != MarkdownTokenTypes.LBRACKET) {
+            if (iterator.type != MarkdownTokenTypes.LBRACKET) {
                 return null
             }
 
+            var it = iterator.mutableCopy()
             val startIndex = it.index
             val delegate = RangesListBuilder()
 
@@ -121,11 +120,11 @@ class LinkParserUtil {
         }
 
         fun parseLinkTitle(iterator: TokensCache.Iterator): LocalParsingResult? {
-            var it = iterator
-            if (it.type == MarkdownTokenTypes.EOL) {
+            if (iterator.type == MarkdownTokenTypes.EOL) {
                 return null
             }
 
+            var it = iterator.mutableCopy()
             val startIndex = it.index
             val closingType: IElementType?
 

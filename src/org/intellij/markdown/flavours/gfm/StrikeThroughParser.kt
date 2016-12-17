@@ -11,7 +11,7 @@ class StrikeThroughParser : SequentialParser {
         val result = SequentialParser.ParsingResultBuilder()
         val delegateIndices = RangesListBuilder()
         var lastOpenedPos: Int? = null
-        var iterator = tokens.RangesListIterator(rangesToGlue)
+        var iterator = tokens.MutableRangeListIterator(rangesToGlue)
 
         while (iterator.type != null) {
             if (iterator.type != GFMTokenTypes.TILDE) {

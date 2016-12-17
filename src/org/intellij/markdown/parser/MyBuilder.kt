@@ -21,7 +21,7 @@ class MyBuilder(nodeBuilder: ASTNodeBuilder, private val tokensCache: TokensCach
     }
 
     private fun flushOneTokenToTree(tokensCache: TokensCache, currentNodeChildren: MutableList<TreeBuilder.MyASTNodeWrapper>?, currentTokenPosition: Int) {
-        val iterator = tokensCache.Iterator(currentTokenPosition)
+        val iterator = tokensCache.MutableIterator(currentTokenPosition)
         assert(iterator.type != null)
         val nodes = nodeBuilder.createLeafNodes(iterator.type!!, iterator.start, iterator.end)
         for (node in nodes) {
@@ -47,13 +47,13 @@ class MyBuilder(nodeBuilder: ASTNodeBuilder, private val tokensCache: TokensCach
 
             childrenWithWhitespaces.add(prev.astNode)
 
-            addRawTokens(tokensCache, childrenWithWhitespaces, prev.endTokenIndex - 1, +1, tokensCache.Iterator(next.startTokenIndex).start)
+            addRawTokens(tokensCache, childrenWithWhitespaces, prev.endTokenIndex - 1, +1, tokensCache.MutableIterator(next.startTokenIndex).start)
         }
         if (!currentNodeChildren.isEmpty()) {
             childrenWithWhitespaces.add(currentNodeChildren.last().astNode)
         }
         if (isTopmostNode) {
-            addRawTokens(tokensCache, childrenWithWhitespaces, endTokenId - 1, +1, tokensCache.Iterator(endTokenId).start)
+            addRawTokens(tokensCache, childrenWithWhitespaces, endTokenId - 1, +1, tokensCache.MutableIterator(endTokenId).start)
         }
 
         newNode = nodeBuilder.createCompositeNode(type, childrenWithWhitespaces)
@@ -61,7 +61,7 @@ class MyBuilder(nodeBuilder: ASTNodeBuilder, private val tokensCache: TokensCach
     }
 
     private fun addRawTokens(tokensCache: TokensCache, childrenWithWhitespaces: MutableList<ASTNode>, from: Int, dx: Int, exitOffset: Int) {
-        val iterator = tokensCache.Iterator(from)
+        val iterator = tokensCache.MutableIterator(from)
         var rawIdx = 0
         while (iterator.rawLookup(rawIdx + dx) != null && iterator.rawStart(rawIdx + dx) != exitOffset) {
             rawIdx += dx

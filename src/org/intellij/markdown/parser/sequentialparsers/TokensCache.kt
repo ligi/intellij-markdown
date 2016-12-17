@@ -23,29 +23,40 @@ abstract class TokensCache {
         }
     }
 
-    inner class RangesListIterator private constructor(private val ranges: List<IntRange>,
-                                                       private val listIndex: Int,
-                                                       value: Int) : Iterator(value) {
+    inner class MutableRangeListIterator private constructor(private val ranges: List<IntRange>,
+                                                             private var listIndex: Int,
+                                                             value: Int) : MutableIterator(value) {
         constructor(ranges: List<IntRange>) : this(ranges, 0, ranges.firstOrNull()?.start ?: -1)
 
-        override fun advance(): RangesListIterator {
+        override fun mutableCopy() = MutableRangeListIterator(ranges, listIndex, index)
+
+        override fun advance(): MutableRangeListIterator {
             if (listIndex >= ranges.size) {
                 return this
             }
+
             if (index == ranges[listIndex].endInclusive) {
-                return RangesListIterator(ranges, listIndex + 1, ranges.getOrNull(listIndex + 1)?.start ?: filteredTokens.size)
+                listIndex++
+                index = ranges.getOrNull(listIndex)?.start ?: filteredTokens.size
             }
-            return RangesListIterator(ranges, listIndex, index + 1)
+            else {
+                index++
+            }
+            return this
         }
 
-        override fun rollback(): RangesListIterator {
+        override fun rollback(): MutableRangeListIterator {
             if (listIndex < 0) {
                 return this
             }
             if (index == ranges[listIndex].start) {
-                return RangesListIterator(ranges, listIndex - 1, ranges.getOrNull(listIndex - 1)?.endInclusive ?: -1)
+                listIndex--
+                index = ranges.getOrNull(listIndex)?.endInclusive ?: -1
             }
-            return RangesListIterator(ranges, listIndex, index - 1)
+            else {
+                index--
+            }
+            return this
         }
 
         override fun rawLookup(steps: Int): IElementType? {
@@ -56,7 +67,28 @@ abstract class TokensCache {
         }
     }
 
-    inner open class Iterator(val index: Int) {
+    inner open class MutableIterator(override var index: Int) : Iterator() {
+        override fun mutableCopy() : MutableIterator = MutableIterator(index)
+
+        open fun advance(): MutableIterator {
+            index++
+            return this
+        }
+
+        open fun rollback(): MutableIterator {
+            index--
+            return this
+        }
+    }
+
+    inner abstract class Iterator {
+        abstract val index: Int
+
+        abstract fun mutableCopy() : MutableIterator
+
+//        abstract fun advance(): Iterator
+//
+//        abstract fun rollback(): Iterator
 
         val type : IElementType?
             get() {
@@ -82,14 +114,6 @@ abstract class TokensCache {
             get() {
                 return info(0).tokenEnd
             }
-
-        open fun advance(): Iterator {
-            return Iterator(index + 1)
-        }
-
-        open fun rollback(): Iterator {
-            return Iterator(index - 1)
-        }
 
         private fun info(rawSteps: Int): TokenInfo {
             if (index < 0) {

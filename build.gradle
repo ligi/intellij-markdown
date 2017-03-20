@@ -14,9 +14,6 @@ buildscript {
 
 
 repositories {
-    flatDir {
-        dirs 'lib'
-    }
     mavenCentral()
 }
 
@@ -28,7 +25,6 @@ group = 'com.github.ligi'
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile 'junit:junit:4.12'
-
 }
 
 sourceSets {
@@ -37,47 +33,6 @@ sourceSets {
     test.java.srcDirs = ['test']
     test.kotlin.srcDirs = ['test']
     main.resources.srcDirs = []
-}
-
-test {
-    useJUnit {
-        excludeCategories 'org.intellij.markdown.ParserPerformanceTest'
-    }
-    testLogging {
-        exceptionFormat = 'full'
-    }
-    outputs.upToDateWhen { false }
-}
-
-task performanceTest(type: Test, group: 'verification', dependsOn: [classes, testClasses]) {
-    useJUnit {
-        includeCategories 'org.intellij.markdown.ParserPerformanceTest'
-    }
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}
-
-task downloadCommonmark(type: Exec) {
-    onlyIf { !new File("CommonMark").exists() }
-    executable 'git'
-    args 'clone', 'https://github.com/jgm/CommonMark'
-}
-
-task testJar(type: Jar) {
-    from sourceSets.test.output
-    from sourceSets.main.output
-    archiveName 'markdown-test.jar'
-    manifest {
-        attributes 'Main-Class': 'org.intellij.markdown.SpecRunner'
-        attributes 'Class-Path': configurations.testRuntime.join(' ')
-    }
-}
-
-task runSpec(type: Exec, group: 'verification', dependsOn: [downloadCommonmark, testJar]) {
-    executable 'python3'
-    workingDir 'CommonMark'
-    args 'test/spec_tests.py', '-p', '../run_html_gen.sh'
 }
 
 

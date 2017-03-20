@@ -27,7 +27,6 @@ group = 'com.github.ligi'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile name: 'idea_rt'
     testCompile 'junit:junit:4.12'
 
 }

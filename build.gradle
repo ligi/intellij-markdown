@@ -81,10 +81,6 @@ task runSpec(type: Exec, group: 'verification', dependsOn: [downloadCommonmark, 
     args 'test/spec_tests.py', '-p', '../run_html_gen.sh'
 }
 
-jar {
-    archiveName 'markdown.jar'
-}
-
 if (hasProperty("bintrayUser")) {
     apply from: "deploy.gradle"
 }

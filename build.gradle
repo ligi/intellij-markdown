@@ -21,9 +21,11 @@ repositories {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
+group = 'com.github.ligi'
+    
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile name: 'idea_rt'

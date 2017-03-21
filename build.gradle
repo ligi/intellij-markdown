@@ -70,7 +70,6 @@ task downloadCommonmark(type: Exec) {
 task testJar(type: Jar) {
     from sourceSets.test.output
     from sourceSets.main.output
-    archiveName 'markdown-test.jar'
     manifest {
         attributes 'Main-Class': 'org.intellij.markdown.SpecRunner'
         attributes 'Class-Path': configurations.testRuntime.join(' ')
@@ -81,10 +80,6 @@ task runSpec(type: Exec, group: 'verification', dependsOn: [downloadCommonmark, 
     executable 'python3'
     workingDir 'CommonMark'
     args 'test/spec_tests.py', '-p', '../run_html_gen.sh'
-}
-
-jar {
-    archiveName 'markdown.jar'
 }
 
 if (hasProperty("bintrayUser")) {
